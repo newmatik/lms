@@ -1,18 +1,27 @@
 from __future__ import unicode_literals
 import frappe
+import frappe.www.list
 from frappe import _
+from urllib.parse import urlencode
+
+no_cache = 1
 
 def get_context(context):
-    context.no_cache = 1
-    try:
-        hackathon = frappe.form_dict['hackathon']
-    except KeyError:
-        frappe.local.flags.redirect_location = '/hackathons'
-        raise frappe.Redirect
-    context.projects = get_hackathon_projects(hackathon)
-    context.hackathon = hackathon
-    context.talks = get_hackathon_talks(hackathon)
-    context.updates = get_hackathon_updates(context.projects)
+    if frappe.session.user == "Guest":
+        frappe.throw(_("You need to be logged in to access this page"), frappe.PermissionError)
+
+        context.show_sidebar = True
+    else:
+        context.no_cache = 1
+        try:
+            hackathon = frappe.form_dict['hackathon']
+        except KeyError:
+            frappe.local.flags.redirect_location = '/hackathons'
+            raise frappe.Redirect
+        context.projects = get_hackathon_projects(hackathon)
+        context.hackathon = hackathon
+        context.talks = get_hackathon_talks(hackathon)
+        context.updates = get_hackathon_updates(context.projects)
 
 def get_hackathon_projects(hackathon):
     return frappe.get_all("Community Project", filters={"hackathon":hackathon}, fields=["name", "project_short_intro"])
