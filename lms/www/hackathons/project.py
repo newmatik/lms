@@ -1,26 +1,35 @@
 from __future__ import unicode_literals
 import frappe
+import frappe.www.list
 from frappe import _
+from urllib.parse import urlencode
+
+no_cache = 1
 
 def get_context(context):
-	context.no_cache = 1
-	try:
-		project = frappe.form_dict['project']
-		hackathon = frappe.form_dict['hackathon']
-	except KeyError:
-		frappe.local.flags.redirect_location = '/hackathons'
-		raise frappe.Redirect
-	context.project = get_project(project)
-	context.hackathon = hackathon
-	context.members = get_members(project)
-	context.confirmed_members = get_comfirmed_members(project)
-	context.updates = get_updates(project)
-	if frappe.session.user != "Guest":
-		context.my_project = get_my_projects()
-		context.is_owner = context.project.owner == frappe.session.user
-		context.accepted_members = get_accepted_members(project)
-		context.is_member = check_is_member(project)
-		context.liked = get_liked_project(project)
+	if frappe.session.user == "Guest":
+		frappe.throw(_("You need to be logged in to access this page"), frappe.PermissionError)
+
+		context.show_sidebar = True
+	else:
+		context.no_cache = 1
+		try:
+			project = frappe.form_dict['project']
+			hackathon = frappe.form_dict['hackathon']
+		except KeyError:
+			frappe.local.flags.redirect_location = '/hackathons'
+			raise frappe.Redirect
+		context.project = get_project(project)
+		context.hackathon = hackathon
+		context.members = get_members(project)
+		context.confirmed_members = get_comfirmed_members(project)
+		context.updates = get_updates(project)
+		if frappe.session.user != "Guest":
+			context.my_project = get_my_projects()
+			context.is_owner = context.project.owner == frappe.session.user
+			context.accepted_members = get_accepted_members(project)
+			context.is_member = check_is_member(project)
+			context.liked = get_liked_project(project)
 
 def get_project(project_name):
 	try:

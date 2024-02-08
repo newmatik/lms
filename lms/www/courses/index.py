@@ -1,14 +1,25 @@
+from __future__ import unicode_literals
+
 import frappe
+import frappe.www.list
+from frappe import _
+
+no_cache = 1
 
 def get_context(context):
-    context.no_cache = 1
-    context.live_courses, context.upcoming_courses = get_courses()
-    context.metatags = {
-        "title": "All Courses",
-        "image": frappe.db.get_single_value("Website Settings", "banner_image"),
-        "description": "This page lists all the courses published on our website",
-        "keywords": "All Courses, Courses, Learn"
-    }
+    if frappe.session.user == "Guest":
+        frappe.throw(_("You need to be logged in to access this page"), frappe.PermissionError)
+
+        context.show_sidebar = True
+    else:
+        context.no_cache = 1
+        context.live_courses, context.upcoming_courses = get_courses()
+        context.metatags = {
+            "title": "All Courses",
+            "image": frappe.db.get_single_value("Website Settings", "banner_image"),
+            "description": "This page lists all the courses published on our website",
+            "keywords": "All Courses, Courses, Learn"
+        }
 
 def get_courses():
     course_names = frappe.get_all("LMS Course",
