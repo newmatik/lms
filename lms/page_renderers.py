@@ -8,7 +8,7 @@ import mimetypes
 import frappe
 from frappe.website.page_renderers.base_renderer import BaseRenderer
 from frappe.website.page_renderers.document_page import DocumentPage
-from frappe.website.page_renderers.list_page import ListPage
+from frappe.website.page_renderers.list_renderer import ListPage
 from frappe.website.page_renderers.not_found_page import NotFoundPage
 from frappe.website.page_renderers.print_page import PrintPage
 from frappe.website.page_renderers.redirect_page import RedirectPage
